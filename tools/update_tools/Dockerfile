@@ -6,9 +6,8 @@ RUN echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8
 RUN curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
 RUN apt-get update -y && apt-get install bazel -y
 RUN bazel help info >/dev/null 2>&1
-
-# Install Python 2.7.12
-RUN apt-get install python -y
+RUN apt-get install python3 -y
+RUN apt-get install git -y
 
 # Build par files.  We have a source and work directory to avoid
 # stomping on other files as root.
