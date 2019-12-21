@@ -28,6 +28,15 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
+filegroup(
+    name = "distribution",
+    srcs = glob(["**"]) + [
+        "//python/constraints:distribution",
+        "//python/runfiles:distribution",
+    ],
+    visibility = ["//:__pkg__"],
+)
+
 # ========= Core rules =========
 
 exports_files([
@@ -38,7 +47,10 @@ exports_files([
 # Needed to define bzl_library targets for docgen. (We don't define the
 # bzl_library target here because it'd give our users a transitive dependency
 # on Skylib.)
-exports_files(["private/reexports.bzl"], visibility = ["//docs:__pkg__"])
+exports_files(
+    ["private/reexports.bzl"],
+    visibility = ["//docs:__pkg__"],
+)
 
 # This target can be used to inspect the current Python major version. To use,
 # put it in the `flag_values` attribute of a `config_setting` and test it
