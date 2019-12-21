@@ -18,7 +18,7 @@ workspace(name = "rules_python")
 # Test data for WHL tool testing. #
 ###################################
 
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
 http_file(
     name = "apispec_2_0_1_whl",
@@ -59,8 +59,6 @@ http_file(
              "96686bc6abafacb579334f8c61be2f025f1be161d266893d17b47afd7685/" +
              "google_cloud_spanner-1.9.0-py2.py3-none-any.whl")],
 )
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Load our production dependencies using the federation, except that instead of
 # calling rules_python() (which would define the @rules_python repo), we just
