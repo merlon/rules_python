@@ -78,13 +78,17 @@ def pip_main(argv):
     atexit.register(lambda: shutil.rmtree(cert_tmpdir, ignore_errors=True))
     with open(cert_path, "wb") as cert:
       cert.write(pkgutil.get_data("pip._vendor.requests", "cacert.pem"))
-    argv = ["--disable-pip-version-check", "--cert", cert_path] + argv
+    argv = ["--isolated", "--disable-pip-version-check", "--cert", cert_path] + argv
     return pip.main(argv)
 
 from packaging.whl import Wheel
 
 parser = argparse.ArgumentParser(
     description='Import Python dependencies into Bazel.')
+
+parser.add_argument('--python_interpreter', action='store',
+                    help=('The Python interpreter to use when extracting '
+                          'wheels.'))
 
 parser.add_argument('--name', action='store',
                     help=('The namespace of the import.'))
@@ -170,6 +174,9 @@ def main():
   whls = [Wheel(path) for path in list_whls()]
   possible_extras = determine_possible_extras(whls)
 
+  def repository_name(wheel):
+    return args.name + "_" + wheel.repository_suffix()
+
   def whl_library(wheel):
     # Indentation here matters.  whl_library must be within the scope
     # of the function below.  We also avoid reimporting an existing WHL.
@@ -177,10 +184,12 @@ def main():
   if "{repo_name}" not in native.existing_rules():
     whl_library(
         name = "{repo_name}",
+        python_interpreter = "{python_interpreter}",
         whl = "@{name}//:{path}",
         requirements = "@{name}//:requirements.bzl",
         extras = [{extras}]
-    )""".format(name=args.name, repo_name=wheel.repository_name(),
+    )""".format(name=args.name, repo_name=repository_name(wheel),
+                python_interpreter=args.python_interpreter,
                 path=wheel.basename(),
                 extras=','.join([
                   '"%s"' % extra
@@ -189,11 +198,11 @@ def main():
 
   whl_targets = ','.join([
     ','.join([
-      '"%s": "@%s//:pkg"' % (whl.distribution().lower(), whl.repository_name())
+      '"%s": "@%s//:pkg"' % (whl.distribution().lower(), repository_name(whl))
     ] + [
       # For every extra that is possible from this requirements.txt
       '"%s[%s]": "@%s//:%s"' % (whl.distribution().lower(), extra.lower(),
-                                whl.repository_name(), extra)
+                                repository_name(whl), extra)
       for extra in possible_extras.get(whl, [])
     ])
     for whl in whls
