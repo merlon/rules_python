@@ -57,7 +57,7 @@ http_file(
     # From https://pypi.python.org/pypi/google-cloud-spanner
     urls = [("https://pypi.python.org/packages/b1/df/" +
              "96686bc6abafacb579334f8c61be2f025f1be161d266893d17b47afd7685/" +
-             "google_cloud_spanner-1.9.0-py2.py3-none-any.whl")]
+             "google_cloud_spanner-1.9.0-py2.py3-none-any.whl")],
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
